@@ -1,0 +1,933 @@
+import fs from 'fs';
+import path from 'path';
+import {
+  User,
+  ProProfile,
+  ServiceRequest,
+  RealEstateListing,
+  VisitRequest,
+  Product,
+  Order,
+  Conversation,
+  Message,
+  Review,
+  FavoriteItem,
+  ReportItem,
+  AppNotification
+} from '../src/types/index.js';
+
+interface DatabaseSchema {
+  users: User[];
+  proProfiles: ProProfile[];
+  serviceRequests: ServiceRequest[];
+  realEstateListings: RealEstateListing[];
+  visitRequests: VisitRequest[];
+  products: Product[];
+  orders: Order[];
+  conversations: Conversation[];
+  messages: Message[];
+  reviews: Review[];
+  favorites: FavoriteItem[];
+  reports: ReportItem[];
+  notifications: AppNotification[];
+}
+
+const DB_DIR = path.resolve(process.cwd(), 'server/data');
+const DB_FILE = path.join(DB_DIR, 'database.json');
+
+const INITIAL_DATA: DatabaseSchema = {
+  users: [
+    {
+      id: 'usr_admin_1',
+      name: 'Seybatou Cissé',
+      email: 'seybatou234@gmail.com',
+      phone: '+221 77 862 88 38',
+      whatsappNumber: '+221778628838',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80',
+      roles: ['client', 'pro', 'seller', 'landlord', 'admin'],
+      city: 'Dakar',
+      quarter: 'Almadies',
+      bio: 'Fondateur & Super Admin LEPP 2.0. Électricien certifié & superviseur des prestataires.',
+      createdAt: '2026-01-10T10:00:00Z',
+      isVerified: true,
+      identityDocument: {
+        type: 'CNI',
+        documentNumber: '1 751 1993 05619',
+        frontImageUrl: 'https://images.unsplash.com/photo-1633265486064-086b219458ec?auto=format&fit=crop&w=800&q=80',
+        backImageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+        verificationStatus: 'verifie',
+        verifiedAt: '2026-01-10T14:30:00Z',
+        deliveryDate: '2020-07-20',
+        expirationDate: '2030-07-20'
+      }
+    },
+    {
+      id: 'usr_pro_1',
+      name: 'Ibrahima Diallo',
+      email: 'ibrahima.diallo@lepp.sn',
+      phone: '+221 77 452 33 19',
+      whatsappNumber: '+221774523319',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=500&q=80',
+      roles: ['pro'],
+      city: 'Dakar',
+      quarter: 'Sacré-Cœur 3',
+      bio: 'Artisan climaticien frigoriste avec 9 ans d’expérience à Dakar et environs.',
+      createdAt: '2026-01-15T12:00:00Z',
+      isVerified: true,
+      identityDocument: {
+        type: 'CNI',
+        documentNumber: '1 751 1991 03822',
+        frontImageUrl: 'https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=800&q=80',
+        backImageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+        verificationStatus: 'verifie',
+        verifiedAt: '2026-01-18T10:15:00Z',
+        deliveryDate: '2021-04-12',
+        expirationDate: '2031-04-12'
+      }
+    },
+    {
+      id: 'usr_pro_2',
+      name: 'Moussa Ndiaye',
+      email: 'moussa.auto@lepp.sn',
+      phone: '+221 76 612 88 40',
+      whatsappNumber: '+221766128840',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=500&q=80',
+      roles: ['pro'],
+      city: 'Dakar',
+      quarter: 'Grand Yoff',
+      bio: 'Maître mécanicien multimarques spécialisé diagnostics électroniques et moteurs diesel.',
+      createdAt: '2026-01-20T09:30:00Z',
+      isVerified: true,
+      identityDocument: {
+        type: 'CNI',
+        documentNumber: '1 752 1987 09144',
+        frontImageUrl: 'https://images.unsplash.com/photo-1633265486064-086b219458ec?auto=format&fit=crop&w=800&q=80',
+        backImageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+        verificationStatus: 'verifie',
+        verifiedAt: '2026-01-21T16:00:00Z',
+        deliveryDate: '2019-09-05',
+        expirationDate: '2029-09-05'
+      }
+    },
+    {
+      id: 'usr_pro_3',
+      name: 'Fatou Kiné Sarr',
+      email: 'fatou.kine@lepp.sn',
+      phone: '+221 78 123 45 67',
+      whatsappNumber: '+221781234567',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=500&q=80',
+      roles: ['pro'],
+      city: 'Dakar',
+      quarter: 'Mermoz',
+      bio: 'Enseignante certifiée, cours particuliers de maths, SVT et physique pour collège et lycée.',
+      createdAt: '2026-01-22T14:10:00Z',
+      isVerified: true,
+      identityDocument: {
+        type: 'Passeport',
+        documentNumber: 'A08492015',
+        frontImageUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
+        backImageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+        verificationStatus: 'verifie',
+        verifiedAt: '2026-01-23T11:45:00Z',
+        deliveryDate: '2022-03-15',
+        expirationDate: '2027-03-14'
+      }
+    },
+    {
+      id: 'usr_seller_1',
+      name: 'Cheikh Tidiane Bâ',
+      email: 'cheikh.boutique@lepp.sn',
+      phone: '+221 70 889 00 11',
+      whatsappNumber: '+221708890011',
+      avatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=300&q=80',
+      roles: ['seller'],
+      city: 'Dakar',
+      quarter: 'Plateau',
+      bio: 'Boutique Tech Teranga - Spécialiste Apple, Samsung et PC portables certifiés.',
+      createdAt: '2026-02-01T08:00:00Z',
+      isVerified: true
+    },
+    {
+      id: 'usr_landlord_1',
+      name: 'Pape Babacar Guèye',
+      email: 'pape.immo@lepp.sn',
+      phone: '+221 77 340 99 22',
+      whatsappNumber: '+221773409922',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80',
+      roles: ['landlord'],
+      city: 'Dakar',
+      quarter: 'Ngor - Almadies',
+      bio: 'Gestionnaire immobilier agréé, sélection de biens de standing et gestion locative.',
+      createdAt: '2026-02-05T11:20:00Z',
+      isVerified: true
+    }
+  ],
+  proProfiles: [
+    {
+      id: 'pro_1',
+      userId: 'usr_pro_1',
+      profession: 'Frigoriste & Climaticien',
+      specialtyTitle: 'Expert Installation, Entretien et Dépannage Climatisation',
+      experienceYears: 9,
+      hourlyRate: 15000,
+      startingPrice: 20000,
+      description: 'Dépannage d’urgence, recharge de gaz R410/R32, installation split résidentiel et bureaux. Déplacement rapide sur toute la presqu’île de Dakar et banlieue.',
+      skills: ['Installation Split', 'Recharge Gaz', 'Dépannage Inverter', 'Entretien Filtres & Bobines', 'Nettoyage Haute Pression'],
+      portfolioImages: [
+        'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80'
+      ],
+      rating: 4.9,
+      reviewCount: 38,
+      city: 'Dakar',
+      quarter: 'Sacré-Cœur 3',
+      phone: '+221 77 452 33 19',
+      whatsappNumber: '+221774523319',
+      isAvailable: true,
+      verifiedBadge: true
+    },
+    {
+      id: 'pro_2',
+      userId: 'usr_pro_2',
+      profession: 'Mécanicien',
+      specialtyTitle: 'Mécanique Générale, Diagnostic Électronique & Climatisation Auto',
+      experienceYears: 12,
+      hourlyRate: 10000,
+      startingPrice: 15000,
+      description: 'Atelier moderne à Grand Yoff avec scanner OBD2 multimarques. Dépannage sur place ou prise en charge à domicile pour révisions complètes.',
+      skills: ['Diagnostic Valise OBD', 'Vidange & Révision', 'Freinage & Suspension', 'Réfection Moteur', 'Transmission Automatique'],
+      portfolioImages: [
+        'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=600&q=80'
+      ],
+      rating: 4.8,
+      reviewCount: 52,
+      city: 'Dakar',
+      quarter: 'Grand Yoff',
+      phone: '+221 76 612 88 40',
+      whatsappNumber: '+221766128840',
+      isAvailable: true,
+      verifiedBadge: true
+    },
+    {
+      id: 'pro_3',
+      userId: 'usr_pro_3',
+      profession: 'Professeur particulier',
+      specialtyTitle: 'Soutien Scolaire d’Excellence - Mathématiques & Sciences',
+      experienceYears: 7,
+      hourlyRate: 7500,
+      startingPrice: 30000,
+      description: 'Préparation intensive au BFEM et Baccalauréat (S1, S2, G). Pédagogie active, méthodologie rigoureuse, suivi personnalisé à domicile ou en ligne.',
+      skills: ['Mathématiques Collège & Lycée', 'Physique-Chimie', 'Méthodologie d’Examen', 'Remise à Niveau Rapide'],
+      portfolioImages: [
+        'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80'
+      ],
+      rating: 5.0,
+      reviewCount: 29,
+      city: 'Dakar',
+      quarter: 'Mermoz',
+      phone: '+221 78 123 45 67',
+      whatsappNumber: '+221781234567',
+      isAvailable: true,
+      verifiedBadge: true
+    },
+    {
+      id: 'pro_4',
+      userId: 'usr_admin_1',
+      profession: 'Électricien',
+      specialtyTitle: 'Électricité Bâtiment, Domotique & Énergie Solaire',
+      experienceYears: 10,
+      hourlyRate: 12000,
+      startingPrice: 20000,
+      description: 'Installation et dépannage tableaux électriques, câblage aux normes NFC 15-100, onduleurs et panneaux solaires photovoltaïques.',
+      skills: ['Tableaux Électriques', 'Onduleurs & Batteries', 'Panneaux Solaires', 'Éclairage LED', 'Mise à la Terre'],
+      portfolioImages: [
+        'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80'
+      ],
+      rating: 4.9,
+      reviewCount: 44,
+      city: 'Dakar',
+      quarter: 'Almadies',
+      phone: '+221 77 800 12 34',
+      whatsappNumber: '+221778001234',
+      isAvailable: true,
+      verifiedBadge: true
+    },
+    {
+      id: 'pro_5',
+      userId: 'usr_pro_1',
+      profession: 'Plombier',
+      specialtyTitle: 'Plomberie Sanitaire, Débouchage Urgent & Chauffe-Eau',
+      experienceYears: 8,
+      hourlyRate: 10000,
+      startingPrice: 15000,
+      description: 'Intervention fuite d’eau en 30 minutes, installation surpresseurs et réservoirs d’eau, tuyauterie multicouche et PVC.',
+      skills: ['Recherche de Fuite', 'Surpresseur & Pompe', 'Chauffe-eau Solaire', 'Sanitaires & Robinetterie'],
+      portfolioImages: [
+        'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=600&q=80'
+      ],
+      rating: 4.7,
+      reviewCount: 23,
+      city: 'Dakar',
+      quarter: 'Ouakam',
+      phone: '+221 77 452 33 19',
+      whatsappNumber: '+221774523319',
+      isAvailable: true,
+      verifiedBadge: true
+    },
+    {
+      id: 'pro_6',
+      userId: 'usr_pro_2',
+      profession: 'Informaticien',
+      specialtyTitle: 'Réparation PC/Mac, Réseaux WiFi & Création de Sites Web',
+      experienceYears: 6,
+      hourlyRate: 15000,
+      startingPrice: 25000,
+      description: 'Dépannage matériel et logiciel, récupération de données perdues, installation de routeurs fibre et caméras IP.',
+      skills: ['Dépannage Windows / MacOS', 'Réseau WiFi & Câblage', 'Nettoyage Virus', 'Récupération Données'],
+      portfolioImages: [
+        'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=600&q=80'
+      ],
+      rating: 4.9,
+      reviewCount: 31,
+      city: 'Dakar',
+      quarter: 'Plateau',
+      phone: '+221 76 612 88 40',
+      whatsappNumber: '+221766128840',
+      isAvailable: true,
+      verifiedBadge: true
+    }
+  ],
+  serviceRequests: [
+    {
+      id: 'sr_1',
+      clientId: 'usr_admin_1',
+      clientName: 'Seybatou Cissé',
+      clientPhone: '+221 77 800 12 34',
+      clientWhatsapp: '+221778001234',
+      proId: 'pro_1',
+      serviceType: 'Frigoriste & Climaticien',
+      title: 'Nettoyage complet et recharge gaz pour 3 climatiseurs split',
+      description: 'Les splits au salon et dans deux chambres ne soufflent plus assez de froid. Besoin d’intervention avant le week-end.',
+      city: 'Dakar',
+      quarter: 'Almadies',
+      address: 'Route des Almadies, près de la banque CBAO',
+      dateRequested: '2026-10-15',
+      urgency: 'urgente',
+      status: 'devis_envoye',
+      quoteAmount: 65000,
+      quoteNotes: 'Comprend le démontage, décapage antibactérien et 1.5kg de gaz R410a avec garantie 6 mois.',
+      createdAt: '2026-10-10T14:30:00Z'
+    }
+  ],
+  realEstateListings: [
+    {
+      id: 'immo_1',
+      userId: 'usr_landlord_1',
+      title: 'Appartement F4 Standing Vue Mer aux Almadies',
+      description: 'Superbe appartement de grand standing situé au 3ème étage d’un immeuble sécurisé avec ascenseur. Composé d’un grand salon avec balcon panoramique sur l’océan, 3 chambres avec salles de bain privatives, cuisine équipée, buanderie et place de parking en sous-sol.',
+      propertyType: 'appartement',
+      transactionType: 'location',
+      price: 850000,
+      pricePeriod: 'mois',
+      surface: 195,
+      rooms: 4,
+      bathrooms: 3,
+      city: 'Dakar',
+      quarter: 'Almadies',
+      address: 'Corniche des Almadies',
+      features: ['Vue sur mer', 'Ascenseur', 'Climatisation', 'Sécurité 24h/24', 'Parking sous-sol', 'Groupe électrogène', 'Citerne eau'],
+      images: [
+        'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=800&q=80'
+      ],
+      status: 'disponible',
+      advertiserName: 'Pape Babacar Guèye',
+      advertiserPhone: '+221 77 340 99 22',
+      advertiserWhatsapp: '+221773409922',
+      advertiserRole: 'agent',
+      createdAt: '2026-10-01T10:00:00Z',
+      isFeatured: true,
+      isApproved: true
+    },
+    {
+      id: 'immo_2',
+      userId: 'usr_landlord_1',
+      title: 'Magnifique Villa Contemporaine R+1 avec Piscine à Saly',
+      description: 'Propriété d’exception sur terrain de 750 m² à Saly Portudal. 4 chambres autonomes, vaste séjour ouvert sur terrasse couverte et piscine 10x4m, jardin paysager, panneau solaire avec batteries, garage double et logement gardien. Titre foncier individuel.',
+      propertyType: 'villa',
+      transactionType: 'vente',
+      price: 165000000,
+      pricePeriod: 'total',
+      surface: 320,
+      rooms: 5,
+      bathrooms: 4,
+      city: 'Mbour',
+      quarter: 'Saly Portudal',
+      address: 'Quartier résidentiel calme, 500m de la plage',
+      features: ['Piscine privée', 'Jardin arboré', 'Panneaux solaires', 'Titre Foncier', 'Garage 2 véhicules', 'Climatisation intégrale', 'Meublé haut de gamme'],
+      images: [
+        'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80'
+      ],
+      status: 'disponible',
+      advertiserName: 'Teranga Immo Prestige',
+      advertiserPhone: '+221 77 340 99 22',
+      advertiserWhatsapp: '+221773409922',
+      advertiserRole: 'agent',
+      createdAt: '2026-10-04T11:30:00Z',
+      isFeatured: true,
+      isApproved: true
+    },
+    {
+      id: 'immo_3',
+      userId: 'usr_admin_1',
+      title: 'Studio Cosy Meublé & Climatisé à Sacré-Cœur 3',
+      description: 'Idéal pour cadre ou jeune professionnel. Studio entièrement meublé et équipé : lit queen size, smart TV connectée, fibre optique haut débit, kitchenette moderne avec micro-ondes et réfrigérateur, eau chaude.',
+      propertyType: 'studio',
+      transactionType: 'location',
+      price: 280000,
+      pricePeriod: 'mois',
+      surface: 42,
+      rooms: 1,
+      bathrooms: 1,
+      city: 'Dakar',
+      quarter: 'Sacré-Cœur 3',
+      address: 'À 2 minutes du rond-point Jamm Geun',
+      features: ['Meublé', 'Climatisation', 'WiFi Fibre', 'Smart TV', 'Balcon', 'Gardiennage'],
+      images: [
+        'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80'
+      ],
+      status: 'disponible',
+      advertiserName: 'Seybatou Cissé',
+      advertiserPhone: '+221 77 800 12 34',
+      advertiserWhatsapp: '+221778001234',
+      advertiserRole: 'proprietaire',
+      createdAt: '2026-10-06T15:00:00Z',
+      isFeatured: false,
+      isApproved: true
+    },
+    {
+      id: 'immo_4',
+      userId: 'usr_landlord_1',
+      title: 'Terrain Viabilisé 300 m² Titre Foncier à Diamniadio',
+      description: 'Parcelle d’angle idéalement située dans la nouvelle ville de Diamniadio à proximité du pôle ministériel et de la gare TER. Voies bitumées, raccordement eau SDE et électricité Senelec immédiat.',
+      propertyType: 'terrain',
+      transactionType: 'vente',
+      price: 18500000,
+      pricePeriod: 'total',
+      surface: 300,
+      city: 'Rufisque',
+      quarter: 'Diamniadio',
+      address: 'Zone résidentielle Pôle Urbain Diamniadio',
+      features: ['Titre Foncier', 'Parcelle d’angle', 'Eau et Électricité', 'Proche Gare TER', 'Zone en plein essor'],
+      images: [
+        'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80'
+      ],
+      status: 'disponible',
+      advertiserName: 'Pape Babacar Guèye',
+      advertiserPhone: '+221 77 340 99 22',
+      advertiserWhatsapp: '+221773409922',
+      advertiserRole: 'agent',
+      createdAt: '2026-10-07T08:20:00Z',
+      isFeatured: false,
+      isApproved: true
+    },
+    {
+      id: 'immo_5',
+      userId: 'usr_landlord_1',
+      title: 'Plateau Bureau Lumineux 140 m² pour Entreprise',
+      description: 'Bureaux professionnels rénovés au cœur du centre d’affaires de Dakar Plateau. Espace accueil, 4 bureaux fermés, salle de réunion, coin cuisine et 2 blocs sanitaires.',
+      propertyType: 'bureau',
+      transactionType: 'location',
+      price: 1200000,
+      pricePeriod: 'mois',
+      surface: 140,
+      rooms: 5,
+      bathrooms: 2,
+      city: 'Dakar',
+      quarter: 'Plateau',
+      address: 'Avenue Peytavin / Rue Carnot',
+      features: ['Climatisation centrale', 'Fibre optique pro', 'Sécurité 24/7', 'Ascenseur', 'Générateur de secours'],
+      images: [
+        'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80'
+      ],
+      status: 'disponible',
+      advertiserName: 'Teranga Immo',
+      advertiserPhone: '+221 77 340 99 22',
+      advertiserWhatsapp: '+221773409922',
+      advertiserRole: 'agent',
+      createdAt: '2026-10-09T16:45:00Z',
+      isFeatured: false,
+      isApproved: true
+    }
+  ],
+  visitRequests: [
+    {
+      id: 'vr_1',
+      listingId: 'immo_1',
+      listingTitle: 'Appartement F4 Standing Vue Mer aux Almadies',
+      userId: 'usr_admin_1',
+      userName: 'Seybatou Cissé',
+      userPhone: '+221 77 800 12 34',
+      userWhatsapp: '+221778001234',
+      preferredDate: '2026-10-18',
+      preferredTime: '16:00',
+      message: 'Bonjour, je souhaite visiter cet appartement avec ma famille ce samedi.',
+      status: 'confirmee',
+      createdAt: '2026-10-11T09:00:00Z'
+    }
+  ],
+  products: [
+    {
+      id: 'prod_1',
+      sellerId: 'usr_seller_1',
+      sellerName: 'Boutique Tech Teranga',
+      sellerPhone: '+221 70 889 00 11',
+      sellerWhatsapp: '+221708890011',
+      sellerType: 'commercant',
+      title: 'Apple iPhone 15 Pro Max 256 Go Titane Naturel',
+      description: 'Neuf dans boîte scellée d’origine avec facture et garantie Apple 12 mois. Débloqué tout opérateur mondial. Câble USB-C tressé inclus.',
+      category: 'smartphones',
+      price: 820000,
+      originalPrice: 890000,
+      condition: 'neuf',
+      stock: 4,
+      city: 'Dakar',
+      quarter: 'Plateau',
+      images: [
+        'https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=800&q=80'
+      ],
+      techStorage: '256 Go',
+      techRam: '8 Go',
+      warrantyMonths: 12,
+      createdAt: '2026-10-02T10:15:00Z',
+      viewsCount: 348,
+      isFeatured: true,
+      isApproved: true
+    },
+    {
+      id: 'prod_2',
+      sellerId: 'usr_admin_1',
+      sellerName: 'Seybatou Cissé',
+      sellerPhone: '+221 77 800 12 34',
+      sellerWhatsapp: '+221778001234',
+      sellerType: 'particulier',
+      title: 'Toyota RAV4 Limited 2021 Boîte Automatique',
+      description: 'Véhicule en état irréprochable, importé des USA, dédouané avec carte grise sénégalaise en règle. Entretien régulier chez concessionnaire. Toit panoramique ouvrant, intérieur cuir beige, caméra de recul 360°, climatisation bizone glaciale.',
+      category: 'voitures',
+      price: 16500000,
+      condition: 'tres_bon_etat',
+      stock: 1,
+      city: 'Dakar',
+      quarter: 'Almadies',
+      images: [
+        'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80'
+      ],
+      carMake: 'Toyota',
+      carModel: 'RAV4 Limited',
+      carYear: 2021,
+      carMileage: 42000,
+      fuelType: 'essence',
+      transmission: 'automatique',
+      createdAt: '2026-10-05T13:40:00Z',
+      viewsCount: 512,
+      isFeatured: true,
+      isApproved: true
+    },
+    {
+      id: 'prod_3',
+      sellerId: 'usr_seller_1',
+      sellerName: 'Atelier Couture Thiossane',
+      sellerPhone: '+221 78 123 45 67',
+      sellerWhatsapp: '+221781234567',
+      sellerType: 'commercant',
+      title: 'Grand Boubou 3 Pièces Bazin Riche Getzner Brodé Main',
+      description: 'Confection artisanale sénégalaise haut de gamme. Bazin riche authentique teinté à la main, broderie fil de soie méticuleuse sur le col et la poitrine. Tenue majestueuse pour cérémonies, mariages et Korité/Tabaski.',
+      category: 'vetements_homme',
+      price: 55000,
+      originalPrice: 65000,
+      condition: 'neuf',
+      stock: 12,
+      city: 'Dakar',
+      quarter: 'Sacré-Cœur 3',
+      images: [
+        'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80'
+      ],
+      clothingSizes: ['M', 'L', 'XL', 'XXL'],
+      clothingColors: ['Blanc Royal', 'Bleu Nuit', 'Gris Perle'],
+      createdAt: '2026-10-06T09:00:00Z',
+      viewsCount: 196,
+      isFeatured: true,
+      isApproved: true
+    },
+    {
+      id: 'prod_4',
+      sellerId: 'usr_seller_1',
+      sellerName: 'Boutique Tech Teranga',
+      sellerPhone: '+221 70 889 00 11',
+      sellerWhatsapp: '+221708890011',
+      sellerType: 'commercant',
+      title: 'Apple MacBook Air M2 13.6" - 16 Go RAM / 512 Go SSD',
+      description: 'MacBook Air puce Apple M2 couleur Minuit. État neuf avec seulement 24 cycles de batterie (100% de capacité). Vendu avec chargeur MagSafe 35W d’origine.',
+      category: 'ordinateurs',
+      price: 680000,
+      originalPrice: 750000,
+      condition: 'tres_bon_etat',
+      stock: 2,
+      city: 'Dakar',
+      quarter: 'Plateau',
+      images: [
+        'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80'
+      ],
+      techStorage: '512 Go SSD',
+      techRam: '16 Go',
+      warrantyMonths: 6,
+      createdAt: '2026-10-08T11:20:00Z',
+      viewsCount: 284,
+      isFeatured: false,
+      isApproved: true
+    },
+    {
+      id: 'prod_5',
+      sellerId: 'usr_seller_1',
+      sellerName: 'Boutique Tech Teranga',
+      sellerPhone: '+221 70 889 00 11',
+      sellerWhatsapp: '+221708890011',
+      sellerType: 'commercant',
+      title: 'Smart TV Samsung 55 Pouces Crystal 4K UHD 2024',
+      description: 'Téléviseur intelligent avec système Tizen OS, support Netflix, YouTube, Canal+, Bluetooth 5.2, 3 ports HDMI et télécommande solaire.',
+      category: 'electromenager',
+      price: 320000,
+      originalPrice: 360000,
+      condition: 'neuf',
+      stock: 5,
+      city: 'Thiès',
+      quarter: 'Centre-ville',
+      images: [
+        'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=800&q=80'
+      ],
+      warrantyMonths: 12,
+      createdAt: '2026-10-09T14:15:00Z',
+      viewsCount: 142,
+      isFeatured: false,
+      isApproved: true
+    },
+    {
+      id: 'prod_6',
+      sellerId: 'usr_admin_1',
+      sellerName: 'Seybatou Cissé',
+      sellerPhone: '+221 77 800 12 34',
+      sellerWhatsapp: '+221778001234',
+      sellerType: 'particulier',
+      title: 'Salon d’Angle Moderne en Cuir et Tissu Gris Anthracite',
+      description: 'Salon spacieux 7 places avec méridienne réversible et coffre de rangement. Mousse haute résilience densité 30. Coussins déhoussables lavables.',
+      category: 'meubles',
+      price: 390000,
+      originalPrice: 480000,
+      condition: 'tres_bon_etat',
+      stock: 1,
+      city: 'Dakar',
+      quarter: 'Sacré-Cœur 3',
+      images: [
+        'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80'
+      ],
+      createdAt: '2026-10-10T08:30:00Z',
+      viewsCount: 89,
+      isFeatured: false,
+      isApproved: true
+    }
+  ],
+  orders: [
+    {
+      id: 'ord_1',
+      customerId: 'usr_admin_1',
+      customerName: 'Seybatou Cissé',
+      customerPhone: '+221 77 800 12 34',
+      customerWhatsapp: '+221778001234',
+      deliveryCity: 'Dakar',
+      deliveryQuarter: 'Almadies',
+      deliveryAddress: 'Villa 42 B, près de la corniche',
+      deliveryOption: 'express_dakar',
+      deliveryFee: 3000,
+      paymentMethod: 'wave',
+      paymentStatus: 'en_attente_confirmation',
+      orderStatus: 'en_preparation',
+      items: [
+        {
+          productId: 'prod_3',
+          productTitle: 'Grand Boubou 3 Pièces Bazin Riche Getzner Brodé Main',
+          productImage: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=800&q=80',
+          price: 55000,
+          quantity: 1,
+          selectedSize: 'XL',
+          selectedColor: 'Bleu Nuit'
+        }
+      ],
+      subtotal: 55000,
+      totalAmount: 58000,
+      notes: 'Livraison souhaitée avant 17h, merci d’appeler à l’arrivée.',
+      createdAt: '2026-10-11T12:00:00Z'
+    }
+  ],
+  conversations: [
+    {
+      id: 'conv_1',
+      participantIds: ['usr_admin_1', 'usr_pro_1'],
+      participantNames: {
+        usr_admin_1: 'Seybatou Cissé',
+        usr_pro_1: 'Ibrahima Diallo'
+      },
+      itemType: 'service',
+      itemId: 'pro_1',
+      itemTitle: 'Frigoriste & Climaticien - Dépannage Split',
+      lastMessage: 'Parfait, le devis de 65 000 FCFA est validé. Je serai là ce vendredi à 10h.',
+      lastMessageAt: '2026-10-11T16:20:00Z',
+      unreadCount: {
+        usr_admin_1: 0,
+        usr_pro_1: 0
+      }
+    }
+  ],
+  messages: [
+    {
+      id: 'msg_1',
+      conversationId: 'conv_1',
+      senderId: 'usr_admin_1',
+      senderName: 'Seybatou Cissé',
+      text: 'Bonjour maître Diallo, êtes-vous disponible pour intervenir sur 3 splits aux Almadies ?',
+      createdAt: '2026-10-10T14:32:00Z'
+    },
+    {
+      id: 'msg_2',
+      conversationId: 'conv_1',
+      senderId: 'usr_pro_1',
+      senderName: 'Ibrahima Diallo',
+      text: 'Bonjour M. Cissé ! Oui tout à fait. J’ai envoyé le devis détaillé avec recharge gaz et nettoyage.',
+      createdAt: '2026-10-10T15:10:00Z'
+    },
+    {
+      id: 'msg_3',
+      conversationId: 'conv_1',
+      senderId: 'usr_admin_1',
+      senderName: 'Seybatou Cissé',
+      text: 'Super, j’accepte le devis. Quel jour préférez-vous ?',
+      createdAt: '2026-10-11T09:40:00Z'
+    },
+    {
+      id: 'msg_4',
+      conversationId: 'conv_1',
+      senderId: 'usr_pro_1',
+      senderName: 'Ibrahima Diallo',
+      text: 'Parfait, le devis de 65 000 FCFA est validé. Je serai là ce vendredi à 10h.',
+      createdAt: '2026-10-11T16:20:00Z'
+    }
+  ],
+  reviews: [
+    {
+      id: 'rev_1',
+      targetType: 'pro',
+      targetId: 'pro_1',
+      authorId: 'usr_admin_1',
+      authorName: 'Seybatou Cissé',
+      authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+      rating: 5,
+      comment: 'Excellent travail d’Ibrahima ! Climatiseurs réparés en un temps record, ponctuel et très propre dans son intervention.',
+      createdAt: '2026-09-25T11:00:00Z'
+    },
+    {
+      id: 'rev_2',
+      targetType: 'pro',
+      targetId: 'pro_2',
+      authorId: 'usr_admin_1',
+      authorName: 'Seybatou Cissé',
+      rating: 5,
+      comment: 'Diagnostic électronique très précis pour ma voiture. Prix très honnête comparé aux grands garages.',
+      createdAt: '2026-09-28T16:30:00Z'
+    }
+  ],
+  favorites: [
+    {
+      id: 'fav_1',
+      userId: 'usr_admin_1',
+      itemType: 'service',
+      itemId: 'pro_1',
+      createdAt: '2026-10-01T12:00:00Z'
+    },
+    {
+      id: 'fav_2',
+      userId: 'usr_admin_1',
+      itemType: 'immobilier',
+      itemId: 'immo_1',
+      createdAt: '2026-10-05T14:00:00Z'
+    },
+    {
+      id: 'fav_3',
+      userId: 'usr_admin_1',
+      itemType: 'produit',
+      itemId: 'prod_1',
+      createdAt: '2026-10-08T18:00:00Z'
+    }
+  ],
+  reports: [
+    {
+      id: 'rep_1',
+      reporterId: 'usr_pro_1',
+      targetType: 'produit',
+      targetId: 'prod_99',
+      targetTitle: 'Annonce suspecte supprimée',
+      reason: 'Prix manifestement anormal ou contrefaçon',
+      details: 'Vente annoncée pour produit officiel sans facture',
+      status: 'traite',
+      createdAt: '2026-10-09T10:00:00Z'
+    }
+  ],
+  notifications: [
+    {
+      id: 'notif_1',
+      userId: 'usr_admin_1',
+      type: 'message',
+      title: 'Nouveau message reçu',
+      message: 'Ibrahima Diallo (Frigoriste) : « Parfait, le devis de 65 000 FCFA est validé. Je serai là ce vendredi à 10h. »',
+      isRead: false,
+      relatedId: 'conv_1',
+      relatedType: 'message',
+      createdAt: '2026-10-12T16:20:00Z'
+    },
+    {
+      id: 'notif_2',
+      userId: 'usr_admin_1',
+      type: 'devis_reponse',
+      title: 'Proposition de devis reçue',
+      message: 'Ibrahima Diallo a transmis une offre de 65 000 FCFA pour la réparation et recharge gaz de vos climatiseurs.',
+      isRead: false,
+      relatedId: 'sr_1',
+      relatedType: 'service',
+      createdAt: '2026-10-12T15:10:00Z'
+    },
+    {
+      id: 'notif_3',
+      userId: 'usr_admin_1',
+      type: 'vente_produit',
+      title: 'Félicitations pour votre vente !',
+      message: 'Un client a passé commande pour votre « Grand Boubou Bazin Riche » (Montant: 58 000 FCFA via Wave).',
+      isRead: false,
+      relatedId: 'ord_1',
+      relatedType: 'order',
+      createdAt: '2026-10-12T14:40:00Z'
+    },
+    {
+      id: 'notif_4',
+      userId: 'usr_admin_1',
+      type: 'visite_confirmee',
+      title: 'Confirmation de visite immobilière',
+      message: 'Votre visite pour l’Appartement F4 aux Almadies a été confirmée pour samedi à 16h00.',
+      isRead: true,
+      relatedId: 'immo_1',
+      relatedType: 'immobilier',
+      createdAt: '2026-10-11T10:00:00Z'
+    }
+  ]
+};
+
+class DatabaseManager {
+  private data: DatabaseSchema;
+
+  constructor() {
+    this.data = this.load();
+  }
+
+  private load(): DatabaseSchema {
+    try {
+      if (!fs.existsSync(DB_DIR)) {
+        fs.mkdirSync(DB_DIR, { recursive: true });
+      }
+      if (fs.existsSync(DB_FILE)) {
+        const fileContent = fs.readFileSync(DB_FILE, 'utf-8');
+        const parsed = JSON.parse(fileContent);
+        if (!parsed.notifications || !Array.isArray(parsed.notifications)) {
+          parsed.notifications = JSON.parse(JSON.stringify(INITIAL_DATA.notifications));
+        }
+        if (parsed.products && Array.isArray(parsed.products)) {
+          parsed.products.forEach((p: any) => {
+            if (typeof p.viewsCount !== 'number') {
+              const seed = INITIAL_DATA.products.find((ip) => ip.id === p.id);
+              p.viewsCount = seed?.viewsCount || Math.floor(Math.random() * 120 + 35);
+            }
+          });
+        }
+        if (parsed.realEstateListings && Array.isArray(parsed.realEstateListings)) {
+          parsed.realEstateListings.forEach((l: any) => {
+            if (typeof l.viewsCount !== 'number') {
+              l.viewsCount = Math.floor(Math.random() * 200 + 60);
+            }
+          });
+        }
+        // Ensure pro users have their photo and identity document
+        if (parsed.users && Array.isArray(parsed.users)) {
+          parsed.users.forEach((u: any) => {
+            const seed = INITIAL_DATA.users.find((iu) => iu.id === u.id);
+            if (seed?.identityDocument && !u.identityDocument) {
+              u.identityDocument = JSON.parse(JSON.stringify(seed.identityDocument));
+            }
+            if (seed?.avatar && (!u.avatar || u.avatar.includes('photo-1535713875002'))) {
+              u.avatar = seed.avatar;
+            }
+          });
+        }
+        // Ensure pro profiles inherit the verified identity document
+        if (parsed.proProfiles && Array.isArray(parsed.proProfiles)) {
+          parsed.proProfiles.forEach((p: any) => {
+            const user = parsed.users.find((u: any) => u.id === p.userId);
+            if (user?.identityDocument) {
+              p.identityDocument = user.identityDocument;
+              p.verifiedBadge = true;
+            }
+          });
+        }
+        this.saveData(parsed);
+        return parsed;
+      } else {
+        this.saveData(INITIAL_DATA);
+        return JSON.parse(JSON.stringify(INITIAL_DATA));
+      }
+    } catch (err) {
+      console.error('Error loading DB file, fallback to initial data:', err);
+      return JSON.parse(JSON.stringify(INITIAL_DATA));
+    }
+  }
+
+  private saveData(dataToSave: DatabaseSchema) {
+    try {
+      if (!fs.existsSync(DB_DIR)) {
+        fs.mkdirSync(DB_DIR, { recursive: true });
+      }
+      fs.writeFileSync(DB_FILE, JSON.stringify(dataToSave, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Error saving DB file:', err);
+    }
+  }
+
+  public get(): DatabaseSchema {
+    return this.data;
+  }
+
+  public save() {
+    this.saveData(this.data);
+  }
+
+  public resetToDefault() {
+    this.data = JSON.parse(JSON.stringify(INITIAL_DATA));
+    this.save();
+    return this.data;
+  }
+}
+
+export const db = new DatabaseManager();

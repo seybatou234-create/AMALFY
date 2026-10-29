@@ -1,0 +1,6 @@
+{
+  "name": "AMALFY - Multiservices Sénégal",
+  "description": "Plateforme multiservices sénégalaise AMALFY : AMALFY Services (professionnels et artisans certifiés), AMALFY Immobilier (location et vente vérifiées) et AMALFY Market (produits neufs et occasions avec Wave et Orange Money). Le bon service, le bon bien, le bon produit.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
